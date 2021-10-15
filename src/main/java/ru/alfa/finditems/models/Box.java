@@ -18,7 +18,7 @@ public class Box {
     @Getter private Integer id;
 
     @Column(name = "contained_in")
-    private Integer containedIn;
+    @Getter private Integer containedIn;
 
     public Box(Integer id) {
         this.id = id;

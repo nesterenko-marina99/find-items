@@ -95,18 +95,9 @@ public class ItemService implements ApplicationRunner {
         }
     }
 
-    public void findItems(List<Item> soughtItems, Integer containedIn,
-                                String color) {
-        soughtItems.addAll(itemRepo.findByColorAndBox_Id(color, containedIn));
-        List<Box> childrenBoxes = boxRepo.findByContainedIn(containedIn);
-        if (!(childrenBoxes.isEmpty())) {
-            for (Box box : childrenBoxes) findItems(soughtItems, box.getId(), color);
-        }
-    }
 
     public Integer[] getItemIdsArray(Integer containedIn, String color) {
-        List<Item> items = new ArrayList<>();
-        findItems(items, containedIn, color);
+        List<Item> items = new ArrayList<>(itemRepo.findRecursivelyByBox_IdAndColor(containedIn, color));
         Integer[] itemIds = new Integer[items.size()];
         for (int i = 0; i < items.size(); i++) {
             itemIds[i] = items.get(i).getId();
