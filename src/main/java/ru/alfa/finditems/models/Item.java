@@ -1,20 +1,39 @@
 package ru.alfa.finditems.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+
+@NoArgsConstructor(force = true)
+@AllArgsConstructor
 @Entity(name = "Item")
 @Table(name = "item")
 public class Item {
     @Id
     @Column(name = "id")
-    private Integer id;
-    @Column(name = "contained_in")
-    private Integer containedIn;
+    @Getter private Integer id;
+
+    @ManyToOne(targetEntity = Box.class)
+    @JoinColumn(name = "contained_in")
+    @Getter private Box box;
 
     @Column(name = "color",
     columnDefinition = "TEXT")
-    private String color;
+    @Getter private String color;
+
+    public Item(Integer id) {
+        this.id = id;
+    }
+
+    public Item(Integer id, String color) {
+        this.id = id;
+        this.color = color;
+    }
+
+    public Item(Integer id, Box box) {
+        this.id = id;
+        this.box = box;
+    }
 }
