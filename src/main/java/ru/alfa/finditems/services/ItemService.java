@@ -5,7 +5,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -17,19 +16,15 @@ import ru.alfa.finditems.models.Item;
 import ru.alfa.finditems.repositories.BoxRepository;
 import ru.alfa.finditems.repositories.ItemRepository;
 
-import javax.persistence.Query;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class ItemService implements ApplicationRunner {
-    private final ResourceLoader xmlLoader;
     private final ItemRepository itemRepo;
     private final BoxRepository boxRepo;
 
@@ -37,19 +32,14 @@ public class ItemService implements ApplicationRunner {
     public ItemService(ItemRepository itemRepo, BoxRepository boxRepo) {
         this.itemRepo = itemRepo;
         this.boxRepo = boxRepo;
-        this.xmlLoader = new DefaultResourceLoader();
-    }
-
-    private File loadXml(String link) throws IOException {
-        Resource xmlResource = xmlLoader.getResource(link);
-        return xmlResource.getFile();
     }
 
     public void fromXmlToDatabase(String link) throws ParserConfigurationException,
             IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document xmlDB = builder.parse(loadXml(link));
+        Resource xmlResource = new DefaultResourceLoader().getResource(link);
+        Document xmlDB = builder.parse(xmlResource.getFile());
         xmlDB.normalizeDocument();
         Element rootElem = xmlDB.getDocumentElement();
         fillDbWithDataFromXml(rootElem);
@@ -99,7 +89,8 @@ public class ItemService implements ApplicationRunner {
 
 
     public Integer[] getItemIdsArray(Integer containedIn, String color) {
-        List<Integer> items = new ArrayList<>(itemRepo.findRecursivelyByBox_IdAndColor(containedIn, color));
+        List<Integer> items = new ArrayList<>
+                (itemRepo.findRecursivelyByBox_IdAndColor(containedIn, color));
         Integer[] itemIds = new Integer[items.size()];
         return items.toArray(itemIds);
     }
@@ -107,7 +98,6 @@ public class ItemService implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         String link = args.getSourceArgs()[0];
-        loadXml(link);
         fromXmlToDatabase(link);
     }
 }
