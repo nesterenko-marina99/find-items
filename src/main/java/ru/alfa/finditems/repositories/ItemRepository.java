@@ -13,15 +13,15 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository <Item, Integer> {
 
     @Query(value = "WITH RECURSIVE bi AS   " +
-            "(SELECT id FROM box b WHERE b.id = :contained_in   " +
+            "(SELECT id FROM box WHERE box.id = :contained_in   " +
             "UNION ALL   " +
-            "SELECT bo.id FROM box bo INNER JOIN bi   " +
-            "ON bi.id = bo.contained_in)  " +
-            "SELECT i " +
-            "FROM item i INNER JOIN bi  " +
-            "ON i.contained_in = bi.id  " +
-            "WHERE i.color = :color", nativeQuery = true)
-    List<Item> findRecursivelyByBox_IdAndColor
+            "SELECT box.id FROM box INNER JOIN bi   " +
+            "ON bi.id = box.contained_in)  " +
+            "SELECT item.id " +
+            "FROM item INNER JOIN bi  " +
+            "ON item.contained_in = bi.id  " +
+            "WHERE item.color = :color", nativeQuery = true)
+    List<Integer> findRecursivelyByBox_IdAndColor
             (@Param("contained_in") Integer containedIn,
              @Param("color") String color);
 }

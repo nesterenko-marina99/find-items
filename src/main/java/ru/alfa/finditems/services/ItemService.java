@@ -17,12 +17,14 @@ import ru.alfa.finditems.models.Item;
 import ru.alfa.finditems.repositories.BoxRepository;
 import ru.alfa.finditems.repositories.ItemRepository;
 
+import javax.persistence.Query;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -97,12 +99,9 @@ public class ItemService implements ApplicationRunner {
 
 
     public Integer[] getItemIdsArray(Integer containedIn, String color) {
-        List<Item> items = new ArrayList<>(itemRepo.findRecursivelyByBox_IdAndColor(containedIn, color));
+        List<Integer> items = new ArrayList<>(itemRepo.findRecursivelyByBox_IdAndColor(containedIn, color));
         Integer[] itemIds = new Integer[items.size()];
-        for (int i = 0; i < items.size(); i++) {
-            itemIds[i] = items.get(i).getId();
-        }
-        return itemIds;
+        return items.toArray(itemIds);
     }
 
     @Override
